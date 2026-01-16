@@ -17,6 +17,11 @@
 // Timeout for ultrasonic reading (30ms)
 #define USONIC_TIMEOUT_MS 30000
 
+/// @brief Implementation for ultrasonic sensor (HC-SR04) readings.
+/// @param sensor The configured ultrasonic sensor device.
+/// @param count The number of readings to execute.
+/// @param interval Introduce a wait time between multiple readings.
+/// @return A JsonDocument with distances per reading, starts with reading_1.
 JsonDocument Scan(SensorDevice& sensor, unsigned int count, unsigned int interval) {
     JsonDocument response;
 

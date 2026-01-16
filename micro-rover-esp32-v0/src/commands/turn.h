@@ -8,13 +8,15 @@
 
 #include "../types.h"
 
-// Minimum angle in degrees (0-180), note that I use a custom
-// "center" of 80 degrees... Normally, you'd set 90 there.
-
 #define MIN_ANGLE 10
 #define MAX_ANGLE 150
 #define CENTER_ANGLE 80
 
+/// @brief Implementation for turning servo motors with an angle.
+/// @details Angle is set in degrees (0-180).
+/// @param motor The configured servo motor.
+/// @param angle An angle, the target angle for the servo motor.
+/// @return A JsonDocument with a success flag.
 JsonDocument TurnServo(ServoDevice &motor, unsigned short angle) {
     JsonDocument response;
 

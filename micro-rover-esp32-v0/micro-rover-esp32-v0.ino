@@ -15,7 +15,6 @@
 
 #include <Arduino.h> // Serial, String
 
-#include "src/types.h"
 #include "src/wiring.h"
 #include "src/micro_rover.h"
 #include "src/processor.h"
@@ -51,5 +50,5 @@ void loop() {
         }
     }
 
-    SMAILI_ROVER->HandleTimeouts();
+    SMAILI_ROVER->OnLoop();
 }

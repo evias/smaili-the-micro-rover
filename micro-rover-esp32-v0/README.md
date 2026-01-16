@@ -63,7 +63,7 @@ rover case and the DC motor, because my motors used to jump out of position.
 
 | 3D Model | Attribution | Description |
 | --- | --- | --- |
-| []
+| [Smailì the MicroRover - Rover platform remix](https://www.printables.com/model/1558487-smaili-the-microrover-rover-platform-remix) | A remix of the rover platform model to fit custom DC motors and an added HC-SR04 ultrasonic sensor built on a SG90 Servo motor. |
 
 ## Hardware
 

@@ -10,6 +10,9 @@
 
 #include "scan.h"
 
+/// @brief Implementation for a status command.
+/// @param rover The MicroRover instance.
+/// @return A JsonDocument with all status information.
 JsonDocument Status(MicroRover *rover) {
     JsonDocument response;
 

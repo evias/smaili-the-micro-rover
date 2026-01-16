@@ -5,7 +5,9 @@
 #include <Arduino.h>     // Serial
 #include <ArduinoJson.h> // JsonDocument, serializeJson
 
-void sendSuccessResponse(String message) {
+/// @brief Prepare and send a success response JSON on serial port.
+/// @param message The message to attach to the response.
+inline void sendSuccessResponse(String message) {
     JsonDocument response;
     response["success"] = true;
     response["message"] = message;
@@ -14,7 +16,9 @@ void sendSuccessResponse(String message) {
     Serial.println();
 }
 
-void sendErrorResponse(String message) {
+/// @brief Prepare and send an error response JSON on serial port.
+/// @param message The error to attach to the response.
+inline void sendErrorResponse(String message) {
     JsonDocument response;
     response["success"] = false;
     response["error"] = message;

@@ -7,6 +7,9 @@
 
 #include "../types.h"
 
+/// @brief Implementation for stopping DC motors.
+/// @param motors The list of motors that must be stopped.
+/// @return A JsonDocument with a success flag.
 JsonDocument StopMotors(std::vector<MotorDevice> motors) {
     JsonDocument response;
 
