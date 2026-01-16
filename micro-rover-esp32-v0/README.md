@@ -1,14 +1,38 @@
-# micro-rover
+# Smailì the MicroRover
 
-This sketch contains the firmware source code for a ESP32 DEVKIT V1 board wired
-together with listed components. Note that for practicability, the ESP32 board
-is plugged on a `10:30` prototyping breadboard and attached to the bottom plate
-of the rover platform.
+A tiny *smiling* (:smiley:) rover that speaks JSON!
+
+This sketch contains the firmware source code (C++) for a ESP32 DEVKIT V1 board
+which is wired together with listed components. Note that for practicability,
+the ESP32 board is plugged on a `10:30` prototyping breadboard and attached to
+the bottom plate of the rover platform.
+Refer to [3D Printing](#3d-printing) for the model files.
+
+## Implementation notes
+
+- Main sketch file: [`micro-rover-esp32-v0.ino`](./micro-rover-esp32-v0.ino)
+  - Simple interface to Arduino which creates a global `MicroRover` instance.
+  - Commands are processed by a global instance of `Processor`.
+- `MicroRover` class: [`src/micro_rover.h`](./src/micro_rover.h)
+  - Handles the setup/configuration of devices and protocols (serial).
+  - Used as a wrapper to retrieve individual device struct objects.
+- `Processor` class: [`src/processor.h`](./src/processor.h)
+  - Processes a JSON input into a JsonDocument (ArduinoJson.h)
+  - Expects to find `command`, e.g. `{"command": "status"}`.
+  - Handles the input and options to execute commands from `commands/`.
+- `Device` struct: [`src/types.h`](./src/types.h)
+  - A **simplistic** hardware-to-software wrapper to configure hardware mapping.
+  - i.e. The `pins` property in `Device` contains the number of pins that are
+    wired (or soldered) to a ESP32 pin. e.g. a `Device<2>` contains 2 pins that
+    may be used with `digitalWrite` or `analogWrite`; whereas a `Device<1>`
+    contains 1 pin. Generally speaking, don't count voltage and grounding pins.
+
+For now, use the `Serial Monitor` to send JSON commands to Smailì.
 
 ## 3D Printing
 
 This project includes multiples 3D-printed components. Some modifications were
-necessary to fit and plug the custom motors and servo motor.
+necessary to fit and plug the custom DC motors and servo motor.
 
 ### Original models
 
@@ -20,16 +44,32 @@ necessary to fit and plug the custom motors and servo motor.
 
 ### Modified parts
 
-- `DCMotorSpindleAdapter`: Uses a custom adapter to put on the DC motors pins, so that they can be plugged in the original spindle component.
-- `CoverWithCableCut`: Uses a cable cut on the back-part of the top cover of the rover.
-- `CogModifiedForDC`: Uses a custom cog (wheels) that are pluggable with the specific DC motors.
-- `OuterTrackFrameModForDC`: Uses a custom outer-track components that needs less room inside the cog.
-- `ShelfModifiedForServo`: Uses a custom front-shelf that fits with a servo motor opening in the top-middle.
+- `DCMotorSpindleAdapter`: Uses a custom adapter to put on the DC motors pins,
+  so that they can be plugged in the original spindle component.
+- `CoverWithCableCut`: Uses a cable cut on the back-part of the top cover of the
+  rover.
+- `CogModifiedForDC`: Uses a custom cog (wheels) that are pluggable with the
+  specific DC motors.
+- `ShelfModifiedForServo`: Uses a custom front-shelf that fits with a servo
+  motor opening in the top-middle.
+
+The modified model files are available in `model-files/`, e.g. the full `.3mf`
+project, designed to be printed on a `225x225x265` print bed.
+
+WARNING: I did use *glue* for this project as well, e.g. to glue together the
+rover case and the DC motor, because my motors used to jump out of position.
+
+### Model remix
+
+| 3D Model | Attribution | Description |
+| --- | --- | --- |
+| []
 
 ## Hardware
 
 | Component | Device | Marketplace |
 | --- | --- | --- |
+| 1x Development board | ESP32 DevKit v1 (USB-C) | [AliExpress](https://es.aliexpress.com/item/1005010020285036.html) |
 | 2x Miniature motor | Micro Motor DC 3V-6V 8000RPM | [AliExpress](https://es.aliexpress.com/item/1005008162727677.html) |
 | 1x Servo Motor | Micro Servo `SG-90` | [AliExpress](https://es.aliexpress.com/item/4000126425823.html) |
 | 1x Ultrasonic Sensor | `HC-SR04` | [AliExpress](https://es.aliexpress.com/item/1005006368132158.html) |
