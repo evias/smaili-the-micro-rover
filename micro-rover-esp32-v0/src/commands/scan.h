@@ -30,9 +30,9 @@ JsonDocument Scan(SensorDevice& sensor, unsigned int count, unsigned int interva
     delayMicroseconds(2);
 
     for (int i = 0; i < count; i++) {
-        char* reading_id = "reading_";
         char cursor_inc[4];
-        strcat(reading_id, itoa(i+1, cursor_inc, 10));
+        String reading_id = "reading_";
+        reading_id.concat(itoa(i+1, cursor_inc, 10));
 
         // Send 10 microsecond pulse to trigger
         digitalWrite(sensor.dev.pins[0], HIGH);

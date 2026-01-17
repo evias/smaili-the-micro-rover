@@ -55,7 +55,7 @@ JsonDocument Status(MicroRover *rover) {
     if (!reading["success"]) {
         ultrasonicStatus["distance_cm"] = nullptr;
     } else {
-        ultrasonicStatus["distance_cm"] = reading["distance"];
+        ultrasonicStatus["distance_cm"] = reading["reading_1"];
     }
 
     response["success"] = true;

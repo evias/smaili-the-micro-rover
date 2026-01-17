@@ -33,10 +33,10 @@ void Processor::Handle(MicroRover *rover, Command cmd) {
         return;
     }
 
-    if (command == "status") {
+    if (String(command) == String("status")) {
         response = Status(rover);
     }
-    else if (command == "scan") {
+    else if (String(command) == String("scan")) {
         unsigned int count = 1;
         unsigned int interval = 500;
         if (cmd.containsKey("options") && cmd["options"].containsKey("count")) {
@@ -48,7 +48,7 @@ void Processor::Handle(MicroRover *rover, Command cmd) {
 
         response = Scan(rover->GetSensor(), count, interval);
     }
-    else if (command == "turn") {
+    else if (String(command) == String("turn")) {
         unsigned short angle = 0;
         if (cmd.containsKey("options") && cmd["options"].containsKey("angle")) {
             angle = cmd["options"]["angle"].as<unsigned short>();
@@ -56,7 +56,7 @@ void Processor::Handle(MicroRover *rover, Command cmd) {
 
         response = TurnServo(rover->GetServo(), angle);
     }
-    else if (command == "start") {
+    else if (String(command) == String("start")) {
         unsigned long duration = 0;
         if (cmd.containsKey("options") && cmd["options"].containsKey("duration")) {
             duration = cmd["options"]["duration"].as<unsigned long>();
@@ -70,7 +70,7 @@ void Processor::Handle(MicroRover *rover, Command cmd) {
         std::vector<MotorDevice> motors = rover->GetMotors(side);
         response = StartMotors(motors, duration);
     }
-    else if (command == "stop") {
+    else if (String(command) == String("stop")) {
         const char* side = "both";
         if (cmd.containsKey("options") && cmd["options"].containsKey("side")) {
             side = cmd["options"]["side"].as<const char*>();
@@ -78,6 +78,10 @@ void Processor::Handle(MicroRover *rover, Command cmd) {
 
         std::vector<MotorDevice> motors = rover->GetMotors(side);
         response = StopMotors(motors);
+    }
+    else {
+        rover->Usage();
+        response["success"] = true;
     }
 
     serializeJson(response, Serial);

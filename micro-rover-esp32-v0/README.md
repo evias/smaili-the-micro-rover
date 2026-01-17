@@ -1,4 +1,4 @@
-# Smailì the MicroRover
+# Smaili the MicroRover
 
 A tiny *smiling* (:smiley:) rover that speaks JSON!
 
@@ -27,7 +27,7 @@ Refer to [3D Printing](#3d-printing) for the model files.
     may be used with `digitalWrite` or `analogWrite`; whereas a `Device<1>`
     contains 1 pin. Generally speaking, don't count voltage and grounding pins.
 
-For now, use the `Serial Monitor` to send JSON commands to Smailì.
+For now, use the `Serial Monitor` to send JSON commands to Smaili.
 
 ## 3D Printing
 
@@ -63,7 +63,7 @@ rover case and the DC motor, because my motors used to jump out of position.
 
 | 3D Model | Attribution | Description |
 | --- | --- | --- |
-| [Smailì the MicroRover - Rover platform remix](https://www.printables.com/model/1558487-smaili-the-microrover-rover-platform-remix) | A remix of the rover platform model to fit custom DC motors and an added HC-SR04 ultrasonic sensor built on a SG90 Servo motor. |
+| [Smaili the MicroRover - Rover platform remix](https://www.printables.com/model/1558487-smaili-the-microrover-rover-platform-remix) | A remix of the rover platform model to fit custom DC motors and an added HC-SR04 ultrasonic sensor built on a SG90 Servo motor. |
 
 ## Hardware
 

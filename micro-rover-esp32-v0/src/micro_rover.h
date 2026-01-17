@@ -2,20 +2,21 @@
 #ifndef MICROROVER_MICRO_ROVER_H
 #define MICROROVER_MICRO_ROVER_H
 
+#include <Arduino.h> // String
 #include <vector>
 #include "types.h"
 
 // Forward definition needed for MicroRover::OnLoop().
 JsonDocument StopMotors(std::vector<MotorDevice>);
 
-/// @brief MicroRover describes a tiny smiling rover named Smailì!
+/// @brief MicroRover describes a tiny smiling rover named Smaili!
 /// @details Configures the MicroRover instance hardware mappings.
 class MicroRover {
     typedef std::vector<MotorDevice> MotorDevices;
 
     bool          online_;
-    const char*     name_;
-    const char*  version_;
+    String          name_;
+    String       version_;
     bool       has_servo_;
     bool      has_sensor_;
 

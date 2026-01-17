@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * Smailì the MicroRover: a tiny *smiling* rover that detects obstacles
+ * Smaili the MicroRover: a tiny *smiling* rover that detects obstacles
  * and that speaks JSON!
  *
  * Example commands (send over Serial port):
@@ -26,7 +26,7 @@ Processor*   SMAILI_PROC;
 void setup() {
     Serial.begin(9600);
 
-    SMAILI_ROVER = new MicroRover("Smailì", VERSION);
+    SMAILI_ROVER = new MicroRover("Smaili", VERSION);
     SMAILI_ROVER->AddMotor("wheels-right", MOTOR_A_PIN, "right");
     SMAILI_ROVER->AddMotor("wheels-left", MOTOR_B_PIN, "left");
     SMAILI_ROVER->SetServo("servo", SERVO_SG90_PIN);

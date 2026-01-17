@@ -6,11 +6,11 @@
 #include "serial.h"
 
 /// @brief MicroRover public constructor, initializes ESP32PWM timers.
-/// @param name A friendly name for your MicroRover, e.g. "Smailì".
+/// @param name A friendly name for your MicroRover, e.g. "Smaili".
 /// @param version A version number, recommended semantic versioning, e.g. "1.0.0".
 MicroRover::MicroRover(const char* name, const char* version)
-    : name_(name),
-      version_(version),
+    : name_(String(name)),
+      version_(String(version)),
       online_(false),
       has_sensor_(false),
       has_servo_(false),
@@ -32,7 +32,7 @@ void MicroRover::Usage()
 {
     Serial.println();
     Serial.println("===========================================");
-    Serial.println(sprintf("  %s v%s: MicroRover Commands", name_, version_));
+    Serial.printf("  %s v%s: MicroRover Commands\n", name_.c_str(), version_.c_str());
     Serial.println("===========================================");
     Serial.println();
     Serial.println("Query status:");
