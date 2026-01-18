@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * Smaili the MicroRover: a tiny *smiling* rover that detects obstacles
- * and that speaks JSON!
+ * Smaili the MicroRover: A tiny *smiling* (:smiley:) rover that speaks JSON!
  *
  * Example commands (send over Serial port):
  * - `{"command":"status"}`
- * - `{"command":"start","options":{"side":"both","duration":3000}}`
  * - `{"command":"start","options":{"side":"right","duration":3000}}`
  * - `{"command":"start","options":{"side":"left","duration":3000}}`
  * - `{"command":"turn","options":{"angle":10}}`
@@ -36,6 +34,10 @@ void setup() {
     SMAILI_ROVER->Usage();
 
     SMAILI_PROC = new Processor();
+
+    delay(2000);
+    Serial.println();
+    Serial.println("MicroRover is now listening to your JSON whispers...");
 }
 
 void loop() {

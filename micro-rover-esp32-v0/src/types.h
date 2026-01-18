@@ -27,8 +27,8 @@ struct MotorDevice {
 /// @brief ServoDevice describes a Servo motor wired with 1 pin.
 struct ServoDevice {
     Device<1>        dev; // 0=PWM
-    Servo          servo;
-    unsigned short angle;
+    Servo          motor;
+    unsigned int   angle;
 };
 
 /// @brief SensorDevice describes a Ultrasonic sensor wired with 2 pins.

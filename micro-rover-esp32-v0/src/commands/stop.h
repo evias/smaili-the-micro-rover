@@ -5,19 +5,22 @@
 #include <Arduino.h>     // digitalWrite, LOW
 #include <ArduinoJson.h> // JsonDocument
 
+#include "../serial.h"
 #include "../types.h"
 
 /// @brief Implementation for stopping DC motors.
-/// @param motors The list of motors that must be stopped.
+/// @param motor The motor that must be stopped.
 /// @return A JsonDocument with a success flag.
-JsonDocument StopMotors(std::vector<MotorDevice> motors) {
+JsonDocument StopMotor(MotorDevice& motor) {
     JsonDocument response;
 
-    for (int i = 0, m = motors.size(); i < m; i++) {
-        digitalWrite(motors[i].dev.pins[0], LOW);
-        motors[i].running = false;
-        motors[i].stopTime = 0;
-    }
+    String debugMsg = String("Stopping motor: ");
+    debugMsg.concat(motor.side);
+    sendDebugMessage(debugMsg);
+
+    digitalWrite(motor.dev.pins[0], LOW);
+    motor.running = false;
+    motor.stopTime = 0;
 
     response["success"] = true;
     return response;

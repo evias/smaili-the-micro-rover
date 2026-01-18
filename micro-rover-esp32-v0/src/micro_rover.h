@@ -3,26 +3,24 @@
 #define MICROROVER_MICRO_ROVER_H
 
 #include <Arduino.h> // String
-#include <vector>
 #include "types.h"
 
 // Forward definition needed for MicroRover::OnLoop().
-JsonDocument StopMotors(std::vector<MotorDevice>);
+JsonDocument StopMotor(MotorDevice&);
 
 /// @brief MicroRover describes a tiny smiling rover named Smaili!
 /// @details Configures the MicroRover instance hardware mappings.
 class MicroRover {
-    typedef std::vector<MotorDevice> MotorDevices;
-
     bool          online_;
     String          name_;
     String       version_;
     bool       has_servo_;
     bool      has_sensor_;
 
-    MotorDevices motors_;
-    ServoDevice   servo_;
-    SensorDevice sensor_;
+    MotorDevice lft_motor_;
+    MotorDevice rht_motor_;
+    ServoDevice     servo_;
+    SensorDevice   sensor_;
 
 public:
     MicroRover(const char*, const char*);
@@ -37,12 +35,15 @@ public:
     // Order of pins here is: TRIG (out), ECHO (in)
     void SetSensor(const char*, unsigned short, unsigned short);
 
-    MotorDevices  GetMotors(const char*);
+    MotorDevice&  GetMotor(const char*);
     ServoDevice&  GetServo();
     SensorDevice& GetSensor();
+    const String& GetName();
+    const String& GetVersion();
+    bool          IsOnline();
 
 protected:
-    MotorDevices getMotorsBySide(const char*);
+    MotorDevice& getMotorBySide(const char*);
 };
 
 #endif

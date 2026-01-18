@@ -3,8 +3,8 @@
 #define MICROROVER_COMMANDS_STATUS_H
 
 #include <ArduinoJson.h> // JsonDocument, JsonObject
-#include <vector>
 
+#include "../serial.h"
 #include "../types.h"
 #include "../micro_rover.h"
 
@@ -16,28 +16,27 @@
 JsonDocument Status(MicroRover *rover) {
     JsonDocument response;
 
+    sendDebugMessage(String("Querying MicroRover Status"));
+
     // Motors statuses
     JsonObject motors = response.createNestedObject("motors");
-    std::vector<MotorDevice> rhtMotors = rover->GetMotors("right");
-    for (const MotorDevice& motor: rhtMotors) {
-        JsonObject motorStatus = motors.createNestedObject(motor.dev.id);
-        motorStatus["running"] = motor.running;
-        motorStatus["pin"] = motor.dev.pins[0];
-        if (motor.running && motor.stopTime > 0) {
-            long remaining = motor.stopTime - millis();
-            motorStatus["remaining_ms"] = remaining > 0 ? remaining : 0;
-        }
+
+    MotorDevice rhtMotor = rover->GetMotor("right");
+    JsonObject rhtStatus = motors.createNestedObject(rhtMotor.dev.id);
+    rhtStatus["running"] = rhtMotor.running;
+    rhtStatus["pin"] = rhtMotor.dev.pins[0];
+    if (rhtMotor.running && rhtMotor.stopTime > 0) {
+        long remaining = rhtMotor.stopTime - millis();
+        rhtStatus["remaining_ms"] = remaining > 0 ? remaining : 0;
     }
 
-    std::vector<MotorDevice> lftMotors = rover->GetMotors("left");
-    for (const MotorDevice& motor: lftMotors) {
-        JsonObject motorStatus = motors.createNestedObject(motor.dev.id);
-        motorStatus["running"] = motor.running;
-        motorStatus["pin"] = motor.dev.pins[0];
-        if (motor.running && motor.stopTime > 0) {
-            long remaining = motor.stopTime - millis();
-            motorStatus["remaining_ms"] = remaining > 0 ? remaining : 0;
-        }
+    MotorDevice lftMotor = rover->GetMotor("left");
+    JsonObject lftStatus = motors.createNestedObject(lftMotor.dev.id);
+    lftStatus["running"] = lftMotor.running;
+    lftStatus["pin"] = lftMotor.dev.pins[0];
+    if (lftMotor.running && lftMotor.stopTime > 0) {
+        long remaining = lftMotor.stopTime - millis();
+        lftStatus["remaining_ms"] = remaining > 0 ? remaining : 0;
     }
 
     // Servo status

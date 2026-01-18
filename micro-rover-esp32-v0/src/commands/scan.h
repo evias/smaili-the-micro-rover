@@ -4,7 +4,9 @@
 
 #include <Arduino.h>     // digitalWrite, delay
 #include <ArduinoJson.h> // JsonDocument
+#include <string>
 
+#include "../serial.h"
 #include "../types.h"
 #include "../micro_rover.h"
 
@@ -25,14 +27,15 @@
 JsonDocument Scan(SensorDevice& sensor, unsigned int count, unsigned int interval) {
     JsonDocument response;
 
-    // Clear the trigger pin
-    digitalWrite(sensor.dev.pins[0], LOW);
-    delayMicroseconds(2);
-
     for (int i = 0; i < count; i++) {
-        char cursor_inc[4];
+        sendDebugMessage(String("Reading from ultrasonic sensor"));
+
+        // Clear the trigger pin
+        digitalWrite(sensor.dev.pins[0], LOW);
+        delayMicroseconds(2);
+
         String reading_id = "reading_";
-        reading_id.concat(itoa(i+1, cursor_inc, 10));
+        reading_id.concat(std::to_string(i+1).c_str());
 
         // Send 10 microsecond pulse to trigger
         digitalWrite(sensor.dev.pins[0], HIGH);
@@ -52,6 +55,8 @@ JsonDocument Scan(SensorDevice& sensor, unsigned int count, unsigned int interva
         } else {
             response[reading_id] = distance;
         }
+
+        sendDebugMessage(String("Done reading from ultrasonic sensor"));
 
         // Delay next reading
         if (i < count-1 && interval > 0) {

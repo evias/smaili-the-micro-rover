@@ -6,6 +6,7 @@
 #include <ArduinoJson.h> // JsonDocument
 #include <ESP32Servo.h>  // Servo.write
 
+#include "../serial.h"
 #include "../types.h"
 
 #define MIN_ANGLE 10
@@ -17,8 +18,10 @@
 /// @param motor The configured servo motor.
 /// @param angle An angle, the target angle for the servo motor.
 /// @return A JsonDocument with a success flag.
-JsonDocument TurnServo(ServoDevice &motor, unsigned short angle) {
+JsonDocument TurnServo(ServoDevice &servo, unsigned int angle) {
     JsonDocument response;
+
+    sendDebugMessage(String("Turning servo motor"));
 
     // Validate angle range
     if (angle < MIN_ANGLE || angle > MAX_ANGLE) {
@@ -27,7 +30,7 @@ JsonDocument TurnServo(ServoDevice &motor, unsigned short angle) {
         return response;
     }
 
-    motor.servo.write(angle);
+    servo.motor.write(angle);
 
     response["success"] = true;
     return response;

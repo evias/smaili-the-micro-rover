@@ -13,8 +13,7 @@ MicroRover::MicroRover(const char* name, const char* version)
       version_(String(version)),
       online_(false),
       has_sensor_(false),
-      has_servo_(false),
-      motors_({})
+      has_servo_(false)
 {
     // Timer 0: Servo at 50Hz
     ESP32PWM::allocateTimer(0);
@@ -25,6 +24,8 @@ MicroRover::MicroRover(const char* name, const char* version)
     // Timer 2, 3 reserved for future use.
     ESP32PWM::allocateTimer(2);
     ESP32PWM::allocateTimer(3);
+
+    sendDebugMessage(String("MicroRover initialized"));
 }
 
 /// @brief The Usage method prints usage informations for this MicroRover.
@@ -37,19 +38,12 @@ void MicroRover::Usage()
     Serial.println();
     Serial.println("Query status:");
     Serial.println("  {\"command\":\"status\"}");
-    Serial.println();
     Serial.println("Start motor(s):");
     Serial.println("  {\"command\":\"start\",\"options\":{\"side\":\"right\",\"duration\":1200}}");
-    Serial.println();
     Serial.println("Stop motor(s):");
     Serial.println("  {\"command\":\"stop\",\"options\":{\"side\":\"left\"}}");
-    Serial.println();
-    Serial.println("Stop all motors:");
-    Serial.println("  {\"command\":\"stop\",\"options\":{\"side\":\"both\"}}");
-    Serial.println();
     Serial.println("Turn servo to angle (10-150):");
     Serial.println("  {\"command\":\"turn\",\"options\":{\"angle\":80}}");
-    Serial.println();
     Serial.println("Scan distance with sensor (5 readings):");
     Serial.println("  {\"command\":\"scan\",\"options\":{\"count\":5,\"interval\":500}}");
     Serial.println();
@@ -62,10 +56,10 @@ void MicroRover::Usage()
 void MicroRover::Setup()
 {
     // Configure DC motors pins
-    for (const MotorDevice& motor : motors_) {
-        pinMode(motor.dev.pins[0], OUTPUT);
-        digitalWrite(motor.dev.pins[0], LOW);
-    }
+    pinMode(lft_motor_.dev.pins[0], OUTPUT);
+    pinMode(rht_motor_.dev.pins[0], OUTPUT);
+    digitalWrite(lft_motor_.dev.pins[0], LOW);
+    digitalWrite(rht_motor_.dev.pins[0], LOW);
 
     // Configure ultrasonic sensor pins
     if (has_sensor_) {
@@ -73,6 +67,15 @@ void MicroRover::Setup()
         pinMode(sensor_.dev.pins[1], INPUT);
         digitalWrite(sensor_.dev.pins[0], LOW);
     }
+
+    // Configure servo motor pins
+    if (has_servo_) {
+        servo_.motor.setPeriodHertz(50);  // Standard 50Hz servo
+        servo_.motor.attach(servo_.dev.pins[0], 500, 2400);  // Min/max pulse width
+        servo_.motor.write(servo_.angle);
+    }
+
+    sendDebugMessage(String("MicroRover setup completed"));
 }
 
 /// @brief The OnLoop method verifies the expiration of motor runtimes.
@@ -80,19 +83,14 @@ void MicroRover::Setup()
 void MicroRover::OnLoop() {
     unsigned long currentTime = millis();
 
-    std::vector<MotorDevice> expired;
-    for (int i = 0, m = motors_.size(); i < m; i++) {
-        if (!motors_[i].running || motors_[i].stopTime <= 0) {
-            continue;
-        }
-
-        if (currentTime >= motors_[i].stopTime) {
-            expired.push_back(motors_[i]);
-        }
+    if (lft_motor_.running && lft_motor_.stopTime > 0 &&
+        currentTime >= lft_motor_.stopTime) {
+        StopMotor(this->lft_motor_);
     }
 
-    if (expired.size() > 0) {
-        StopMotors(expired);
+    if (rht_motor_.running && rht_motor_.stopTime > 0 &&
+        currentTime >= rht_motor_.stopTime) {
+        StopMotor(this->rht_motor_);
     }
 }
 
@@ -101,23 +99,23 @@ void MicroRover::OnLoop() {
 /// @param pin A pin number, corresponding to the ESP32 pin number, e.g. 2 for D2.
 /// @param side A side of the MicroRover, one of "right" or "left".
 void MicroRover::AddMotor(const char* id, unsigned short pin, const char* side) {
-    if (String(side) == String("both")) {
-        sendErrorResponse(String("wheel side 'both' cannot be used in setup"));
+    if (String(side) == String("left")) {
+        lft_motor_ = MotorDevice{Device<1>{String(id), {pin}}, false, String(side), 0};
+        sendDebugMessage(String("Registered left-side DC motor"));
+    } else if (String(side) == String("right")) {
+        rht_motor_ = MotorDevice{Device<1>{String(id), {pin}}, false, String(side), 0};
+        sendDebugMessage(String("Registered right-side DC motor"));
+    } else {
+        sendErrorResponse(String("Invalid wheel side. Please use 'left' or 'right'."));
         return ;
     }
-
-    motors_.push_back(MotorDevice{Device<1>{String(id), {pin}}, false, String(side), 0});
 }
 
 /// @brief The SetServo method registers a servo motor with a pin.
 /// @param id A name for the component, e.g. "my-servo".
 /// @param pin A pin number, corresponding to the ESP32 pin number, e.g. 5 for D5.
 void MicroRover::SetServo(const char* id, unsigned short pin) {
-    // Configure the servo motor frequency
     Servo motor;
-    motor.setPeriodHertz(50);  // Standard 50Hz servo
-    motor.attach(pin, 500, 2400);  // Min/max pulse width
-
     servo_ = ServoDevice{Device<1>{String(id), {pin}}, motor, 80}; // angle=80
     has_servo_ = true;
 }
@@ -131,15 +129,11 @@ void MicroRover::SetSensor(const char* id, unsigned short pin_out, unsigned shor
     has_sensor_ = true;
 }
 
-/// @brief The GetMotors method returns a vector of motors by side.
-/// @param side A side of the MicroRover, one of "both", "right" or "left".
-/// @return Returns a vector of MotorDevice instances filtered by side.
-std::vector<MotorDevice> MicroRover::GetMotors(const char* side) {
-    if (String(side) == String("both")) {
-        return motors_;
-    }
-
-    return getMotorsBySide(side);
+/// @brief The GetMotor method returns a MotorDevice instance.
+/// @param side A side of the MicroRover, one of "right" or "left".
+/// @return The initialized motor device instance.
+MotorDevice& MicroRover::GetMotor(const char* side) {
+    return getMotorBySide(side);
 }
 
 /// @brief The GetServo method returns a ServoDevice instance.
@@ -154,17 +148,31 @@ SensorDevice& MicroRover::GetSensor() {
     return this->sensor_;
 }
 
-/// @brief The getMotorsBySide method returns a vector of motors by side.
-/// @param side A side of the MicroRover, one of "both", "right" or "left".
-/// @return Returns a vector of MotorDevice instances filtered by side.
-/// @todo Should return reference to MotorDevice instances.
-std::vector<MotorDevice> MicroRover::getMotorsBySide(const char* side) {
-    std::vector<MotorDevice> out({});
-    for (const MotorDevice& motor : motors_) {
-        if (String(side) == String("both") || motor.side == String(side)) {
-            out.push_back(motor);
-        }
+/// @brief The GetName method returns the MicroRover name.
+/// @return The name of the MicroRover instance.
+const String& MicroRover::GetName() {
+    return this->name_;
+}
+
+/// @brief The GetVersion method returns the MicroRover version.
+/// @return The version of the MicroRover instance.
+const String& MicroRover::GetVersion() {
+    return this->version_;
+}
+
+/// @brief The IsOnline method returns whether the MicroRover is connected to WiFi.
+/// @return Returns true if the MicroRover is connected to a WiFi network.
+bool MicroRover::IsOnline() {
+    return this->online_;
+}
+
+/// @brief The getMotorBySide method returns a MotorDevice instance.
+/// @param side A side of the MicroRover, one of "right" or "left".
+/// @return Returns a MotorDevice instance.
+MotorDevice& MicroRover::getMotorBySide(const char* side) {
+    if (String(side) == String("left")) {
+        return this->lft_motor_;
     }
 
-    return out;
+    return this->rht_motor_;
 }
