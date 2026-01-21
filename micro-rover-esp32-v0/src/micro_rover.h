@@ -3,6 +3,7 @@
 #define MICROROVER_MICRO_ROVER_H
 
 #include <Arduino.h> // String
+#include <Preferences.h>
 #include "types.h"
 
 // Forward definition needed for MicroRover::OnLoop().
@@ -12,10 +13,13 @@ JsonDocument StopMotor(MotorDevice&);
 /// @details Configures the MicroRover instance hardware mappings.
 class MicroRover {
     bool          online_;
+    String    ip_address_;
+
     String          name_;
     String       version_;
     bool       has_servo_;
     bool      has_sensor_;
+    Preferences settings_;
 
     MotorDevice lft_motor_;
     MotorDevice rht_motor_;
@@ -41,9 +45,11 @@ public:
     const String& GetName();
     const String& GetVersion();
     bool          IsOnline();
+    const String& GetIPAddress();
 
 protected:
     MotorDevice& getMotorBySide(const char*);
+    void         setupWiFiConnection();
 };
 
 #endif

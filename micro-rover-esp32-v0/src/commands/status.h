@@ -18,6 +18,9 @@ JsonDocument Status(MicroRover *rover) {
 
     sendDebugMessage(String("Querying MicroRover Status"));
 
+    response["online"] = rover->IsOnline();
+    response["ipaddr"] = rover->GetIPAddress();
+
     // Motors statuses
     JsonObject motors = response.createNestedObject("motors");
 

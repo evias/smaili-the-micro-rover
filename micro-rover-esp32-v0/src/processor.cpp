@@ -67,20 +67,20 @@ void Processor::Handle(MicroRover *rover, Command cmd) {
             duration = cmd["options"]["duration"].as<unsigned long>();
         }
 
-        const char* side = "left";
+        String side("left");
         if (cmd.containsKey("options") && cmd["options"].containsKey("side")) {
-            side = cmd["options"]["side"].as<const char*>();
+            side = cmd["options"]["side"].as<String>();
         }
 
-        response = StartMotor(rover->GetMotor(side), duration);
+        response = StartMotor(rover->GetMotor(side.c_str()), duration);
     }
     else if (String(command) == String("stop")) {
-        const char* side = "left";
+        String side("left");
         if (cmd.containsKey("options") && cmd["options"].containsKey("side")) {
-            side = cmd["options"]["side"].as<const char*>();
+            side = cmd["options"]["side"].as<String>();
         }
 
-        response = StopMotor(rover->GetMotor(side));
+        response = StopMotor(rover->GetMotor(side.c_str()));
     }
     else {
         rover->Usage();

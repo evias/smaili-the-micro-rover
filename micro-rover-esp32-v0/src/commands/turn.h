@@ -9,9 +9,9 @@
 #include "../serial.h"
 #include "../types.h"
 
-#define MIN_ANGLE 10
-#define MAX_ANGLE 150
-#define CENTER_ANGLE 80
+#define MIN_ANGLE 0
+#define MAX_ANGLE 160
+#define CENTER_ANGLE 70
 
 /// @brief Implementation for turning servo motors with an angle.
 /// @details Angle is set in degrees (0-180).
@@ -24,10 +24,11 @@ JsonDocument TurnServo(ServoDevice &servo, unsigned int angle) {
     sendDebugMessage(String("Turning servo motor"));
 
     // Validate angle range
-    if (angle < MIN_ANGLE || angle > MAX_ANGLE) {
-        response["success"] = false;
-        response["message"] = String("Angle must be between 10 and 150 degrees.");
-        return response;
+    if (angle < MIN_ANGLE) {
+        angle = MIN_ANGLE;
+    }
+    else if (angle > MAX_ANGLE) {
+        angle = MAX_ANGLE;
     }
 
     servo.motor.write(angle);

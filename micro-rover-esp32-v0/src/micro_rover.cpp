@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include <Arduino.h>    // Serial, String, digitalWrite, pinMode
 #include <ESP32Servo.h> // ESP32PWM, Servo
+#include <WiFi.h>   // WiFi
 
 #include "micro_rover.h"
+#include "constants.h"
 #include "serial.h"
 
 /// @brief MicroRover public constructor, initializes ESP32PWM timers.
@@ -12,20 +14,11 @@ MicroRover::MicroRover(const char* name, const char* version)
     : name_(String(name)),
       version_(String(version)),
       online_(false),
+      ip_address_("Unknown"),
       has_sensor_(false),
       has_servo_(false)
 {
-    // Timer 0: Servo at 50Hz
-    ESP32PWM::allocateTimer(0);
-
-    // Timer 1: DC motors at diff freq
-    ESP32PWM::allocateTimer(1);
-
-    // Timer 2, 3 reserved for future use.
-    ESP32PWM::allocateTimer(2);
-    ESP32PWM::allocateTimer(3);
-
-    sendDebugMessage(String("MicroRover initialized"));
+    sendDebugMessage(String("Hola! I am Smaili :]"));
 }
 
 /// @brief The Usage method prints usage informations for this MicroRover.
@@ -55,6 +48,8 @@ void MicroRover::Usage()
 /// @details This method is called from the sketch's setup() function.
 void MicroRover::Setup()
 {
+    setupWiFiConnection();
+
     // Configure DC motors pins
     pinMode(lft_motor_.dev.pins[0], OUTPUT);
     pinMode(rht_motor_.dev.pins[0], OUTPUT);
@@ -70,8 +65,13 @@ void MicroRover::Setup()
 
     // Configure servo motor pins
     if (has_servo_) {
+        if (servo_.motor.attached()) {
+            servo_.motor.detach();
+        }
+
+        ESP32PWM::allocateTimer(0);
         servo_.motor.setPeriodHertz(50);  // Standard 50Hz servo
-        servo_.motor.attach(servo_.dev.pins[0], 500, 2400);  // Min/max pulse width
+        servo_.motor.attach(servo_.dev.pins[0], 500, 2400);
         servo_.motor.write(servo_.angle);
     }
 
@@ -116,7 +116,7 @@ void MicroRover::AddMotor(const char* id, unsigned short pin, const char* side) 
 /// @param pin A pin number, corresponding to the ESP32 pin number, e.g. 5 for D5.
 void MicroRover::SetServo(const char* id, unsigned short pin) {
     Servo motor;
-    servo_ = ServoDevice{Device<1>{String(id), {pin}}, motor, 80}; // angle=80
+    servo_ = ServoDevice{Device<1>{String(id), {pin}}, motor, 70}; // angle=70
     has_servo_ = true;
 }
 
@@ -166,6 +166,12 @@ bool MicroRover::IsOnline() {
     return this->online_;
 }
 
+/// @brief The GetIPAddress method returns the local IP address if available.
+/// @return Returns a local IP address when connected to a WiFi network.
+const String &MicroRover::GetIPAddress() {
+    return this->ip_address_;
+}
+
 /// @brief The getMotorBySide method returns a MotorDevice instance.
 /// @param side A side of the MicroRover, one of "right" or "left".
 /// @return Returns a MotorDevice instance.
@@ -175,4 +181,71 @@ MotorDevice& MicroRover::getMotorBySide(const char* side) {
     }
 
     return this->rht_motor_;
+}
+
+/// @brief The setupWiFiConnection method configures the WiFi if needed.
+/// @details See also .vscode/arduino.json to update your credentials.
+/// CAUTION: WIFI_SSID and WIFI_PASS are defined with -D build flags.
+void MicroRover::setupWiFiConnection()
+{
+    // Read credentials if possible
+    settings_.begin("wifi", true);  // true = read only
+    String ssid = settings_.getString("ssid", "");
+    String password = settings_.getString("password", "");
+    settings_.end();
+
+    // Save credentials if necessary
+    // See .vscode/arduino.json to update WIFI_SSID, WIFI_PASS.
+    if (ssid.isEmpty() && SMAILI_WIFI_SSID != "Default" && SMAILI_WIFI_PASS != "Default") {
+        settings_.begin("wifi", false);  // false = read/write
+        settings_.putString("ssid", SMAILI_WIFI_SSID);
+        settings_.putString("password", SMAILI_WIFI_PASS);
+        ssid = String(SMAILI_WIFI_SSID);
+        password = String(SMAILI_WIFI_PASS);
+        settings_.end();
+
+        sendDebugMessage(String("WiFi credentials saved"));
+    }
+
+    // Connect to WiFi if possible
+    if (!ssid.isEmpty()) {
+        if constexpr(SMAILI_DEBUG_ENABLED) {
+            Serial.print("Connecting to WiFi");
+        }
+
+        WiFi.begin(ssid.c_str(), password.c_str());
+
+        bool hasError = false;
+        bool isOnline = false;
+        int  numAttempts = 0;
+        while (!isOnline && !hasError && ++numAttempts < 10) {
+            if constexpr(SMAILI_DEBUG_ENABLED) {
+                Serial.print(".");
+            }
+
+            switch (WiFi.status()) {
+            case WL_CONNECTED:
+                isOnline = true;
+            break;
+
+            case WL_CONNECT_FAILED:
+            case WL_NO_SSID_AVAIL:
+                hasError = true;
+            break;
+            default:
+            break;
+            }
+            delay(500);
+        }
+
+        if (isOnline) {
+            sendDebugMessage(String("Connection to WiFi established!"));
+            online_ = true;
+            ip_address_ = WiFi.localIP().toString();
+        } else {
+            sendDebugMessage(String("\n[WARN] Could not establish WiFi connection."));
+        }
+    } else {
+        sendDebugMessage(String("[WARN] WiFi is unable to connect: missing credentials."));
+    }
 }

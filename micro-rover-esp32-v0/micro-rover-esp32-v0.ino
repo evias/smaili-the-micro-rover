@@ -13,18 +13,20 @@
 
 #include <Arduino.h> // Serial, String
 
-#include "src/wiring.h"
+#include "src/constants.h"
 #include "src/micro_rover.h"
 #include "src/processor.h"
 
-const char* VERSION = "1.0.0";
+#define SMAILI_VERSION "1.1.0"
+
 MicroRover* SMAILI_ROVER;
 Processor*   SMAILI_PROC;
 
 void setup() {
     Serial.begin(9600);
+    delay(2000); // Wait for serial..
 
-    SMAILI_ROVER = new MicroRover("Smaili", VERSION);
+    SMAILI_ROVER = new MicroRover("Smaili", SMAILI_VERSION);
     SMAILI_ROVER->AddMotor("wheels-right", MOTOR_A_PIN, "right");
     SMAILI_ROVER->AddMotor("wheels-left", MOTOR_B_PIN, "left");
     SMAILI_ROVER->SetServo("servo", SERVO_SG90_PIN);

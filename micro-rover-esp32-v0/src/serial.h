@@ -5,7 +5,7 @@
 #include <Arduino.h>     // Serial
 #include <ArduinoJson.h> // JsonDocument, serializeJson
 
-const bool IS_DEBUG = true;
+#include "constants.h"
 
 /// @brief Prepare and send a success response JSON on serial port.
 /// @param message The message to attach to the response.
@@ -32,7 +32,7 @@ inline void sendErrorResponse(String message) {
 /// @brief Prepare and send a debug message (not JSON).
 /// @param message The message to send on serial port.
 inline void sendDebugMessage(String message) {
-    if (IS_DEBUG) {
+    if constexpr(SMAILI_DEBUG_ENABLED) {
         Serial.printf("[DEBUG] %s\n", message.c_str());
     }
 }

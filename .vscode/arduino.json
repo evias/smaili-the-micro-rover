@@ -1,7 +1,13 @@
 {
-    "port": "/dev/tty.usbserial-0001",
-    "configuration": "JTAGAdapter=default,PSRAM=disabled,PartitionScheme=default,CPUFreq=240,FlashMode=qio,FlashFreq=80,FlashSize=4M,UploadSpeed=921600,LoopCore=1,EventsCore=1,DebugLevel=none,EraseFlash=none,ZigbeeMode=default",
-    "board": "esp32:esp32:esp32",
     "sketch": "micro-rover-esp32-v0/micro-rover-esp32-v0.ino",
-    "output": "../build"
+    "port": "/dev/tty.usbserial-0001",
+    "board": "esp32:esp32:esp32",
+    "output": "../build",
+    "configuration": "JTAGAdapter=default,PSRAM=disabled,PartitionScheme=default,CPUFreq=240,FlashMode=qio,FlashFreq=80,FlashSize=4M,UploadSpeed=921600,LoopCore=1,EventsCore=1,DebugLevel=none,EraseFlash=none,ZigbeeMode=default",
+    "buildPreferences": [
+        [
+            "build.extra_flags",
+            "-DWIFI_SSID=\"Default\" -DWIFI_PASS=\"Default\" -DDEBUG_MODE=1"
+        ]
+    ]
 }

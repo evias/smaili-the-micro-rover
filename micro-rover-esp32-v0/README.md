@@ -124,7 +124,7 @@ rover case and the DC motor, because my motors used to jump out of position.
 |-------------------|------------|------------|
 | H9 | Brown (GND) | **ESP32 GND** |
 | H10 | Red (Power) | **ESP32 5V** (or external 5V supply) |
-| H11 | Yellow (Signal) | **ESP32 D5** (GPIO 5) |
+| H11 | Yellow (Signal) | **ESP32 D22** (GPIO 22) |
 
 ### Ultrasonic sensor
 
@@ -141,7 +141,7 @@ rover case and the DC motor, because my motors used to jump out of position.
 |-----------|-------------|--------------|
 | **D2** | GPIO 2 | Motor A (via transistor) |
 | **D4** | GPIO 4 | Motor B (via transistor) |
-| **D5** | GPIO 5 | Servo Signal (Yellow) |
+| **D22** | GPIO 22 | Servo Signal (Yellow) |
 | **D15** | GPIO 15 | HC-SR04 Echo (White) |
 | **D18** | GPIO 18 | HC-SR04 Trigger (Gray) |
 | **3v3** | - | Servo Red, HC-SR04 VCC |
